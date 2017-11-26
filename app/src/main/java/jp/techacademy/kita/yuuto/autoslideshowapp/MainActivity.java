@@ -20,6 +20,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
+    Timer mTimer = null;
+    ImageView mTimerImage;
+    Handler mHandler = new Handler();
+    Cursor cursor;
 
     private static final int PERMISSIONS_REQUEST_CODE = 100;
 
@@ -57,6 +61,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+        private void showImage() {
+            //カーソルの指している画像をimageViewに設定するというロジック
+            int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+            Long id = cursor.getLong(fieldIndex);
+            Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+
+            ImageView imageVIew = (ImageView) findViewById(R.id.Image_View);
+            imageVIew.setImageURI(imageUri);
+        }
+
+    Button mGoButton;
+    Button mBackButton;
+    Button mStartButton;
+
     private void getContentsInfo() {
 
         // 画像の情報を取得する
@@ -66,49 +84,32 @@ public class MainActivity extends AppCompatActivity {
                 null, // 項目(null = 全項目)
                 null, // フィルタ条件(null = フィルタなし)
                 null, // フィルタ用パラメータ
-                null // ソート (null ソートなし)
-        );
+                null
+        ); // ソート (null ソートなし)
 
-        if (cursor.moveToFirst()) {
-            int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-            Long id = cursor.getLong(fieldIndex);
-            Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+        mTimerImage = (ImageView) findViewById(R.id.Image_View);
+        mGoButton = (Button) findViewById(R.id.go_button);
+        mBackButton = (Button) findViewById(R.id.back_button);
+        mStartButton = (Button) findViewById(R.id.start_button);
 
-            ImageView imageVIew = (ImageView) findViewById(R.id.Image_View);
-            imageVIew.setImageURI(imageUri);
-        }
-        cursor.close();
-
-    Timer mTimer;
-    TextView mTimerText;
-    double mTimerSec = 0.0;
-
-    Handler mHandler = new Handler();
-
-    Button mStartButton;
-    Button mPauseButton;
-    Button mResetButton;
-
-
-//        mTimerText = (TextView) findViewById(R.id.timer);
-        mStartButton = (Button) findViewById(R.id.go_button);
-        mPauseButton = (Button) findViewById(R.id.back_button);
-        mResetButton = (Button) findViewById(R.id.start_button);
-
-        mStartButton.setOnClickListener(new View.OnClickListener() {
+        mGoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (MainActivity.this.cursor.moveToNext()) {
+                    MainActivity.this.cursor.moveToFirst();
+                }
+                showImage();
+
                 if (mTimer == null) {
                     mTimer = new Timer();
                     mTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            mTimerSec += 0.1;
-
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mTimerText.setText(String.format("%.1f", mTimerSec));
+                                    showImage();
                                 }
                             });
                         }
@@ -117,9 +118,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mPauseButton.setOnClickListener(new View.OnClickListener() {
+        mBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (MainActivity.this.cursor.moveToPrevious()) {
+                    MainActivity.this.cursor.moveToLast();
+                }
+                showImage();
+
                 if (mTimer != null) {
                     mTimer.cancel();
                     mTimer = null;
@@ -127,11 +134,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mResetButton.setOnClickListener(new View.OnClickListener() {
+        mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTimerSec = 0.0;
-                mTimerText.setText(String.format("%.1f", mTimerSec));
+                showImage();
 
                 if (mTimer != null) {
                     mTimer.cancel();
