@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 画像の情報を取得する
         ContentResolver resolver = getContentResolver();
-        Cursor cursor = resolver.query(
+        cursor = resolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, // データの種類
                 null, // 項目(null = 全項目)
                 null, // フィルタ条件(null = フィルタなし)
@@ -100,21 +100,6 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.cursor.moveToFirst();
                 }
                 showImage();
-
-                if (mTimer == null) {
-                    mTimer = new Timer();
-                    mTimer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            mHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    showImage();
-                                }
-                            });
-                        }
-                    }, 2000, 2000);
-                }
             }
         });
 
@@ -126,11 +111,6 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.cursor.moveToLast();
                 }
                 showImage();
-
-                if (mTimer != null) {
-                    mTimer.cancel();
-                    mTimer = null;
-                }
             }
         });
 
@@ -138,11 +118,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showImage();
-
-                if (mTimer != null) {
-                    mTimer.cancel();
-                    mTimer = null;
-                }
+                    mTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showImage();
+                                }
+                            });
+                        }
+                    }, 2000, 2000);
             }
         });
     }
