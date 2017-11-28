@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Timer;
@@ -99,11 +98,9 @@ public class MainActivity extends AppCompatActivity {
         mGoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (!MainActivity.this.cursor.moveToNext()) {
                     MainActivity.this.cursor.moveToFirst();
                 }
-
                 showImage();
             }
         });
@@ -111,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
         mBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (!MainActivity.this.cursor.moveToPrevious()) {
                     MainActivity.this.cursor.moveToLast();
                 }
@@ -122,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (mTimer == null) {
                     mStartButton.setText("停止");
                     mBackButton.setEnabled(false);
@@ -138,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
                                     if (!MainActivity.this.cursor.moveToNext()) {
                                         MainActivity.this.cursor.moveToFirst();
                                     }
-
                                     showImage();
                                 }
                             });
@@ -151,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
                     mBackButton.setEnabled(true);
                     mGoButton.setEnabled(true);
                 }
-
             }
         });
     }
