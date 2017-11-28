@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -54,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
             case PERMISSIONS_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getContentsInfo();
+                }else{
+                    Toast.makeText(this, "PERMISSIONが拒否されたのでアプリを終了します。", Toast.LENGTH_LONG).show();
+                    finish();
                 }
                 break;
             default:
@@ -96,9 +100,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (MainActivity.this.cursor.moveToNext()) {
+                if (!MainActivity.this.cursor.moveToNext()) {
                     MainActivity.this.cursor.moveToFirst();
                 }
+
                 showImage();
             }
         });
@@ -107,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (MainActivity.this.cursor.moveToPrevious()) {
+                if (!MainActivity.this.cursor.moveToPrevious()) {
                     MainActivity.this.cursor.moveToLast();
                 }
                 showImage();
@@ -117,18 +122,36 @@ public class MainActivity extends AppCompatActivity {
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showImage();
+
+                if (mTimer == null) {
+                    mStartButton.setText("停止");
+                    mBackButton.setEnabled(false);
+                    mGoButton.setEnabled(false);
+
+                    mTimer = new Timer();
                     mTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
+                                    if (!MainActivity.this.cursor.moveToNext()) {
+                                        MainActivity.this.cursor.moveToFirst();
+                                    }
+
                                     showImage();
                                 }
                             });
                         }
                     }, 2000, 2000);
+                }else{
+                    mTimer.cancel();
+                    mTimer = null;
+                    mStartButton.setText("再生");
+                    mBackButton.setEnabled(true);
+                    mGoButton.setEnabled(true);
+                }
+
             }
         });
     }
